@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counter App - Hiwot Jewore | Codveda Task 3</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .counter-container {
+            background: white;
+            padding: 60px 40px;
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.6s ease;
+        }
+
+        .counter-header {
+            margin-bottom: 40px;
+        }
+
+        .counter-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .counter-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .counter-display {
+            margin: 40px 0;
+        }
+
+        .counter-value {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #333;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .counter-value.animate {
+            transform: scale(1.1);
+            color: #667eea;
+        }
+
+        .counter-label {
+            font-size: 1.2rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .counter-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .counter-btn {
+            width: 70px;
+            height: 70px;
+            border: none;
+            border-radius: 50%;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .btn-decrement {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .btn-increment {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #339af0, #228be6);
+            color: white;
+            width: 100px;
+            border-radius: 35px;
+            font-size: 1rem;
+        }
+
+        .counter-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .counter-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .counter-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .counter-stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .counter-history {
+            margin-top: 20px;
+            max-height: 100px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .history-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .demo-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .demo-btn {
+            background: linear-gradient(135deg, #ffd43b, #fab005);
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .demo-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 212, 59, 0.3);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 0.3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .counter-container {
+                padding: 40px 20px;
+                margin: 10px;
+            }
+
+            .counter-value {
+                font-size: 4rem;
+            }
+
+            .counter-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+            }
+
+            .btn-reset {
+                width: 80px;
+                font-size: 0.9rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="counter-container">
+        <div class="counter-header">
+            <h1>⚡ Counter App</h1>
+            <p>DOM Manipulation Demo - Codveda Task 3</p>
+        </div>
+
+        <div class="counter-display">
+            <div class="counter-value" id="counterValue">0</div>
+            <div class="counter-label">Current Count</div>
+        </div>
+
+        <div class="counter-controls">
+            <button class="counter-btn btn-decrement" id="decrementBtn" onclick="decrement()">
+                −
+            </button>
+            <button class="counter-btn btn-increment" id="incrementBtn" onclick="increment()">
+                +
+            </button>
+        </div>
+
+        <div style="text-align: center;">
+            <button class="counter-btn btn-reset" id="resetBtn" onclick="reset()">
+                Reset
+            </button>
+        </div>
+
+        <div class="counter-stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalClicks">0</span>
+                    <span class="stat-label">Total Clicks</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="maxValue">0</span>
+                    <span class="stat-label">Max Reached</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-value" id="minValue">0</span>
+                    <span class="stat-label">Min Reached</span>
+                </div>
+            </div>
+
+            <div class="counter-history" id="historyContainer">
+                <div class="history-item">Counter initialized at 0</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">
+                <strong>Demo Features:</strong>
+            </p>
+            <button class="demo-btn" onclick="demoIncrement()">+10 Demo</button>
+            <button class="demo-btn" onclick="demoDecrement()">-5 Demo</button>
+            <button class="demo-btn" onclick="randomDemo()">Random</button>
+        </div>
+    </div>
+
+    <script>
+        // Counter state
+        let counter = 0;
+        let totalClicks = 0;
+        let maxValue = 0;
+        let minValue = 0;
+        let history = [];
+
+        // DOM elements
+        const counterValue = document.getElementById('counterValue');
+        const decrementBtn = document.getElementById('decrementBtn');
+        const incrementBtn = document.getElementById('incrementBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const totalClicksElement = document.getElementById('totalClicks');
+        const maxValueElement = document.getElementById('maxValue');
+        const minValueElement = document.getElementById('minValue');
+        const historyContainer = document.getElementById('historyContainer');
+
+        // Update display function
+        function updateDisplay() {
+            counterValue.textContent = counter;
+            
+            // Add animation
+            counterValue.classList.add('animate');
+            setTimeout(() => {
+                counterValue.classList.remove('animate');
+            }, 300);
+
+            // Update stats
+            totalClicksElement.textContent = totalClicks;
+            maxValueElement.textContent = maxValue;
+            minValueElement.textContent = minValue;
+
+            // Disable decrement button if counter is 0
+            decrementBtn.disabled = counter <= 0;
+
+            // Update button colors based on state
+            if (counter <= 0) {
+                decrementBtn.style.opacity = '0.5';
+            } else {
+                decrementBtn.style.opacity = '1';
+            }
+        }
+
+        // Add to history
+        function addToHistory(action, value) {
+            const timestamp = new Date().toLocaleTimeString();
+            const historyItem = `${timestamp}: ${action} (${value})`;
+            history.unshift(historyItem);
+            
+            // Keep only last 5 items
+            if (history.length > 5) {
+                history = history.slice(0, 5);
+            }
+
+            // Update history display
+            historyContainer.innerHTML = history
+                .map(item => `<div class="history-item">${item}</div>`)
+                .join('');
+        }
+
+        // Increment function
+        function increment() {
+            counter++;
+            totalClicks++;
+            
+            if (counter > maxValue) {
+                maxValue = counter;
+            }
+            
+            addToHistory('Incremented', counter);
+            updateDisplay();
+            
+            // Add pulse animation to button
+            incrementBtn.classList.add('pulse');
+            setTimeout(() => {
+                incrementBtn.classList.remove('pulse');
+            }, 300);
+        }
+
+        // Decrement function
+        function decrement() {
+            if (counter > 0) {
+                counter--;
+                totalClicks++;
+                
+                if (counter < minValue) {
+                    minValue = counter;
+                }
+                
+                addToHistory('Decremented', counter);
+                updateDisplay();
+                
+                // Add pulse animation to button
+                decrementBtn.classList.add('pulse');
+                setTimeout(() => {
+                    decrementBtn.classList.remove('pulse');
+                }, 300);
+            }
+        }
+
+        // Reset function
+        function reset() {
+            counter = 0;
+            totalClicks = 0;
+            maxValue = 0;
+            minValue = 0;
+            history = [];
+            
+            addToHistory('Reset', 0);
+            updateDisplay();
+            
+            // Add pulse animation to button
+            resetBtn.classList.add('pulse');
+            setTimeout(() => {
+                resetBtn.classList.remove('pulse');
+            }, 300);
+        }
+
+        // Demo functions
+        function demoIncrement() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => increment(), i * 100);
+            }
+        }
+
+        function demoDecrement() {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => decrement(), i * 100);
+            }
+        }
+
+        function randomDemo() {
+            const randomValue = Math.floor(Math.random() * 20) + 1;
+            for (let i = 0; i < randomValue; i++) {
+                setTimeout(() => increment(), i * 50);
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowUp':
+                case '+':
+                    e.preventDefault();
+                    increment();
+                    break;
+                case 'ArrowDown':
+                case '-':
+                    e.preventDefault();
+                    decrement();
+                    break;
+                case 'r':
+                case 'R':
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        reset();
+                    }
+                    break;
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+        addToHistory('Counter initialized', 0);
+
+        // Add keyboard instructions
+        const keyboardInfo = document.createElement('div');
+        keyboardInfo.innerHTML = `
+            <p style="margin-top: 20px; font-size: 0.8rem; color: #999; text-align: center;">
+                <strong>Keyboard shortcuts:</strong> ↑/+ (increment), ↓/- (decrement), Ctrl+R (reset)
+            </p>
+        `;
+        document.querySelector('.counter-container').appendChild(keyboardInfo);
+    </script>
+</body>
+</html>
