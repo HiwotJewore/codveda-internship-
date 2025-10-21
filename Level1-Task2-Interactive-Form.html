@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Form - Hiwot Jewore | Codveda Task 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.6s ease;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .form-group input.valid {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .form-group input.invalid {
+            border-color: #dc3545;
+            background: #fff8f8;
+            animation: shake 0.5s ease;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        .success-message {
+            color: #28a745;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .success-message.show {
+            opacity: 1;
+        }
+
+        .password-strength {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e1e5e9;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #dc3545; width: 25%; }
+        .strength-fair { background: #ffc107; width: 50%; }
+        .strength-good { background: #17a2b8; width: 75%; }
+        .strength-strong { background: #28a745; width: 100%; }
+
+        .strength-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .success-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .success-popup h2 {
+            color: #28a745;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .success-popup p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .form-header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>🚀 Registration Form</h1>
+            <p>Codveda Technologies - Interactive Form Demo</p>
+        </div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="fullName">Full Name *</label>
+                <input type="text" id="fullName" name="fullName" required>
+                <div class="error-message" id="nameError"></div>
+                <div class="success-message" id="nameSuccess"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+                <div class="error-message" id="emailError"></div>
+                <div class="success-message" id="emailSuccess"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required>
+                <div class="error-message" id="phoneError"></div>
+                <div class="success-message" id="phoneSuccess"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required>
+                <div class="password-strength">
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
+                    <div class="strength-text" id="strengthText">Enter a password</div>
+                </div>
+                <div class="error-message" id="passwordError"></div>
+                <div class="success-message" id="passwordSuccess"></div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                Create Account
+            </button>
+        </form>
+    </div>
+
+    <!-- Success Popup -->
+    <div class="overlay" id="overlay"></div>
+    <div class="success-popup" id="successPopup">
+        <h2>🎉 Success!</h2>
+        <p>Your account has been created successfully!</p>
+        <p><strong>Welcome to Codveda Technologies!</strong></p>
+        <button class="close-btn" onclick="closePopup()">Continue</button>
+    </div>
+
+    <script>
+        // Form validation and interactivity
+        const form = document.getElementById('registrationForm');
+        const inputs = {
+            fullName: document.getElementById('fullName'),
+            email: document.getElementById('email'),
+            phone: document.getElementById('phone'),
+            password: document.getElementById('password')
+        };
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Validation rules
+        const validators = {
+            fullName: (value) => {
+                if (value.length < 2) return 'Name must be at least 2 characters';
+                if (!/^[a-zA-Z\s]+$/.test(value)) return 'Name can only contain letters and spaces';
+                return null;
+            },
+            email: (value) => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) return 'Please enter a valid email address';
+                return null;
+            },
+            phone: (value) => {
+                const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+                if (!phoneRegex.test(value.replace(/[\s\-\(\)]/g, ''))) {
+                    return 'Please enter a valid phone number';
+                }
+                return null;
+            },
+            password: (value) => {
+                if (value.length < 8) return 'Password must be at least 8 characters';
+                if (!/(?=.*[a-z])/.test(value)) return 'Password must contain lowercase letters';
+                if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain uppercase letters';
+                if (!/(?=.*\d)/.test(value)) return 'Password must contain numbers';
+                return null;
+            }
+        };
+
+        // Password strength checker
+        function checkPasswordStrength(password) {
+            let score = 0;
+            let feedback = 'Weak';
+            let className = 'strength-weak';
+
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/\d/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            if (score >= 4) {
+                feedback = 'Strong';
+                className = 'strength-strong';
+            } else if (score >= 3) {
+                feedback = 'Good';
+                className = 'strength-good';
+            } else if (score >= 2) {
+                feedback = 'Fair';
+                className = 'strength-fair';
+            }
+
+            return { score, feedback, className };
+        }
+
+        // Real-time validation
+        Object.keys(inputs).forEach(fieldName => {
+            const input = inputs[fieldName];
+            const errorElement = document.getElementById(fieldName + 'Error');
+            const successElement = document.getElementById(fieldName + 'Success');
+
+            input.addEventListener('input', () => {
+                const value = input.value.trim();
+                const error = validators[fieldName](value);
+
+                if (fieldName === 'password') {
+                    const strength = checkPasswordStrength(value);
+                    const strengthFill = document.getElementById('strengthFill');
+                    const strengthText = document.getElementById('strengthText');
+                    
+                    strengthFill.className = 'strength-fill ' + strength.className;
+                    strengthText.textContent = strength.feedback;
+                    strengthText.className = 'strength-text ' + strength.className;
+                }
+
+                if (error) {
+                    input.classList.add('invalid');
+                    input.classList.remove('valid');
+                    errorElement.textContent = error;
+                    errorElement.classList.add('show');
+                    successElement.classList.remove('show');
+                } else if (value) {
+                    input.classList.add('valid');
+                    input.classList.remove('invalid');
+                    errorElement.classList.remove('show');
+                    successElement.textContent = '✓ Looks good!';
+                    successElement.classList.add('show');
+                } else {
+                    input.classList.remove('valid', 'invalid');
+                    errorElement.classList.remove('show');
+                    successElement.classList.remove('show');
+                }
+
+                checkFormValidity();
+            });
+
+            input.addEventListener('blur', () => {
+                if (input.value.trim()) {
+                    const error = validators[fieldName](input.value.trim());
+                    if (error) {
+                        input.classList.add('invalid');
+                    }
+                }
+            });
+        });
+
+        // Check if form is valid
+        function checkFormValidity() {
+            const isValid = Object.keys(inputs).every(fieldName => {
+                const value = inputs[fieldName].value.trim();
+                return value && !validators[fieldName](value);
+            });
+
+            submitBtn.disabled = !isValid;
+        }
+
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Show success popup
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('successPopup').classList.add('show');
+        });
+
+        function closePopup() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('successPopup').classList.remove('show');
+            
+            // Reset form
+            form.reset();
+            Object.keys(inputs).forEach(fieldName => {
+                inputs[fieldName].classList.remove('valid', 'invalid');
+                document.getElementById(fieldName + 'Error').classList.remove('show');
+                document.getElementById(fieldName + 'Success').classList.remove('show');
+            });
+            
+            // Reset password strength
+            document.getElementById('strengthFill').className = 'strength-fill';
+            document.getElementById('strengthText').textContent = 'Enter a password';
+            
+            submitBtn.disabled = true;
+        }
+
+        // Demo data for testing
+        function fillDemoData() {
+            inputs.fullName.value = 'Hiwot Jewore';
+            inputs.email.value = 'hiwot@example.com';
+            inputs.phone.value = '+1234567890';
+            inputs.password.value = 'SecurePass123';
+            
+            // Trigger validation
+            Object.keys(inputs).forEach(fieldName => {
+                inputs[fieldName].dispatchEvent(new Event('input'));
+            });
+        }
+
+        // Add demo button (for testing)
+        const demoBtn = document.createElement('button');
+        demoBtn.textContent = '🎯 Fill Demo Data';
+        demoBtn.type = 'button';
+        demoBtn.style.cssText = 'margin-top: 10px; padding: 8px 16px; background: #17a2b8; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;';
+        demoBtn.onclick = fillDemoData;
+        form.appendChild(demoBtn);
+    </script>
+</body>
+</html>
