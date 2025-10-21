@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeHealthCloud AI - Digital Health Dashboard | AWS Healthcare Solutions</title>
+    <meta name="description" content="AI-powered home healthcare dashboard for PACE programs and remote patient monitoring using AWS cloud services">
+    <style>
+        /* CSS Reset and Healthcare Variables */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --healthcare-primary: #0066cc;
+            --healthcare-secondary: #00a86b;
+            --healthcare-accent: #ff6b35;
+            --healthcare-warning: #ffa500;
+            --healthcare-critical: #dc3545;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-dashboard: #e8f4fd;
+            --shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-dashboard);
+            scroll-behavior: smooth;
+        }
+
+        /* Healthcare Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--healthcare-primary);
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--healthcare-primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--healthcare-primary);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section - Patient Overview */
+        .hero {
+            margin-top: 80px;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--healthcare-primary), var(--healthcare-secondary));
+            color: white;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: var(--healthcare-accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        /* Patient Metrics Dashboard */
+        .dashboard {
+            padding: 4rem 2rem;
+            background: var(--bg-primary);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--healthcare-primary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border-left: 5px solid var(--healthcare-primary);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.2);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--healthcare-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .metric-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--healthcare-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-normal {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--healthcare-secondary);
+        }
+
+        .status-warning {
+            background: rgba(255, 165, 0, 0.1);
+            color: var(--healthcare-warning);
+        }
+
+        .status-critical {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--healthcare-critical);
+        }
+
+        /* AWS Services Integration */
+        .aws-services {
+            padding: 4rem 2rem;
+            background: var(--bg-secondary);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--healthcare-primary), var(--healthcare-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+            color: white;
+        }
+
+        /* Real-time Monitoring */
+        .monitoring-section {
+            padding: 4rem 2rem;
+            background: var(--bg-primary);
+        }
+
+        .monitoring-dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .patient-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .patient-row {
+            display: grid;
+            grid-template-columns: 1fr 100px 100px 100px 120px;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .patient-row:hover {
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .vital-sign {
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .patient-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Healthcare Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">🏥 HomeHealthCloud AI</a>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="#patients" class="nav-link">Patients</a></li>
+                <li><a href="#analytics" class="nav-link">Analytics</a></li>
+                <li><a href="#aws-services" class="nav-link">AWS Services</a></li>
+                <li><a href="#alerts" class="nav-link">Alerts</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered Home Healthcare</h1>
+            <p>Transforming PACE programs and remote patient monitoring with AWS cloud services, real-time analytics, and predictive AI for better health outcomes.</p>
+            <a href="#dashboard" class="cta-button">View Patient Dashboard</a>
+        </div>
+    </section>
+
+    <!-- Patient Metrics Dashboard -->
+    <section id="dashboard" class="dashboard">
+        <div class="dashboard-container">
+            <h2 class="section-title">Real-Time Patient Metrics</h2>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">👥</div>
+                        <div class="metric-title">Active Patients</div>
+                    </div>
+                    <div class="metric-value" id="activePatients">247</div>
+                    <div class="metric-description">Currently monitored in PACE program</div>
+                    <span class="status-indicator status-normal">All Systems Normal</span>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🚨</div>
+                        <div class="metric-title">Critical Alerts</div>
+                    </div>
+                    <div class="metric-value" id="criticalAlerts">3</div>
+                    <div class="metric-description">Require immediate attention</div>
+                    <span class="status-indicator status-critical">Action Required</span>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">📊</div>
+                        <div class="metric-title">Fall Risk Predictions</div>
+                    </div>
+                    <div class="metric-value" id="fallRisk">12</div>
+                    <div class="metric-description">AI-identified high-risk patients</div>
+                    <span class="status-indicator status-warning">Monitor Closely</span>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">💊</div>
+                        <div class="metric-title">Medication Adherence</div>
+                    </div>
+                    <div class="metric-value" id="medicationAdherence">94%</div>
+                    <div class="metric-description">Average compliance rate</div>
+                    <span class="status-indicator status-normal">Excellent</span>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🏠</div>
+                        <div class="metric-title">Home Visits Today</div>
+                    </div>
+                    <div class="metric-value" id="homeVisits">18</div>
+                    <div class="metric-description">Scheduled and completed</div>
+                    <span class="status-indicator status-normal">On Schedule</span>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🤖</div>
+                        <div class="metric-title">AI Insights Generated</div>
+                    </div>
+                    <div class="metric-value" id="aiInsights">156</div>
+                    <div class="metric-description">Today's predictive analytics</div>
+                    <span class="status-indicator status-normal">Processing</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AWS Services Integration -->
+    <section id="aws-services" class="aws-services">
+        <div class="dashboard-container">
+            <h2 class="section-title">AWS Healthcare Services</h2>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🧠</div>
+                    <h3>Amazon Bedrock</h3>
+                    <p>AI-powered health insights and predictive analytics for fall prevention and medication management</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>AWS IoT Core</h3>
+                    <p>Real-time monitoring of wearable devices and home sensors for continuous patient care</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">🔒</div>
+                    <h3>AWS HealthLake</h3>
+                    <p>HIPAA-compliant data storage and analytics for patient health records and care coordination</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📊</div>
+                    <h3>Amazon SageMaker</h3>
+                    <p>Machine learning models for health outcome prediction and personalized care recommendations</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">🚀</div>
+                    <h3>AWS Lambda</h3>
+                    <p>Serverless functions for real-time alert processing and automated care workflows</p>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📞</div>
+                    <h3>Amazon Connect</h3>
+                    <p>AI-powered patient communication and telehealth appointment scheduling</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-time Patient Monitoring -->
+    <section id="patients" class="monitoring-section">
+        <div class="monitoring-dashboard">
+            <h2 class="section-title">Live Patient Monitoring</h2>
+            <div class="patient-list">
+                <div class="patient-row" style="background: var(--healthcare-primary); color: white; font-weight: 600;">
+                    <div>Patient Name</div>
+                    <div>Heart Rate</div>
+                    <div>Blood Pressure</div>
+                    <div>Activity Level</div>
+                    <div>Status</div>
+                </div>
+                <div class="patient-row">
+                    <div class="patient-name">Maria Rodriguez</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">72 BPM</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">120/80</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">Active</div>
+                    <div><span class="status-indicator status-normal">Normal</span></div>
+                </div>
+                <div class="patient-row">
+                    <div class="patient-name">James Wilson</div>
+                    <div class="vital-sign" style="color: var(--healthcare-warning);">95 BPM</div>
+                    <div class="vital-sign" style="color: var(--healthcare-warning);">140/90</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">Moderate</div>
+                    <div><span class="status-indicator status-warning">Monitor</span></div>
+                </div>
+                <div class="patient-row">
+                    <div class="patient-name">Eleanor Chen</div>
+                    <div class="vital-sign" style="color: var(--healthcare-critical);">110 BPM</div>
+                    <div class="vital-sign" style="color: var(--healthcare-critical);">160/95</div>
+                    <div class="vital-sign" style="color: var(--healthcare-critical);">Low</div>
+                    <div><span class="status-indicator status-critical">Alert</span></div>
+                </div>
+                <div class="patient-row">
+                    <div class="patient-name">Robert Johnson</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">68 BPM</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">115/75</div>
+                    <div class="vital-sign" style="color: var(--healthcare-secondary);">Active</div>
+                    <div><span class="status-indicator status-normal">Normal</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Real-time dashboard updates simulation
+        function updateMetrics() {
+            const metrics = {
+                activePatients: document.getElementById('activePatients'),
+                criticalAlerts: document.getElementById('criticalAlerts'),
+                fallRisk: document.getElementById('fallRisk'),
+                medicationAdherence: document.getElementById('medicationAdherence'),
+                homeVisits: document.getElementById('homeVisits'),
+                aiInsights: document.getElementById('aiInsights')
+            };
+
+            // Simulate real-time updates
+            setInterval(() => {
+                // Update active patients (slight variations)
+                const currentPatients = parseInt(metrics.activePatients.textContent);
+                metrics.activePatients.textContent = currentPatients + Math.floor(Math.random() * 3) - 1;
+
+                // Update AI insights (continuously growing)
+                const currentInsights = parseInt(metrics.aiInsights.textContent);
+                metrics.aiInsights.textContent = currentInsights + Math.floor(Math.random() * 3);
+
+                // Update medication adherence (slight fluctuations)
+                const adherence = 94 + (Math.random() * 4 - 2);
+                metrics.medicationAdherence.textContent = adherence.toFixed(1) + '%';
+
+                // Add pulse animation to critical alerts
+                if (parseInt(metrics.criticalAlerts.textContent) > 0) {
+                    metrics.criticalAlerts.classList.add('pulse');
+                }
+            }, 5000);
+        }
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMetrics();
+            
+            // Add loading animation to metric cards
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+        });
+
+        // Simulate AWS service health checks
+        function checkAWSServices() {
+            console.log('🏥 HomeHealthCloud AI - AWS Services Status:');
+            console.log('✅ Amazon Bedrock: Operational');
+            console.log('✅ AWS IoT Core: Operational');
+            console.log('✅ AWS HealthLake: Operational');
+            console.log('✅ Amazon SageMaker: Operational');
+            console.log('✅ AWS Lambda: Operational');
+            console.log('✅ Amazon Connect: Operational');
+        }
+
+        // Run service check every 30 seconds
+        setInterval(checkAWSServices, 30000);
+        checkAWSServices(); // Initial check
+    </script>
+</body>
+</html>

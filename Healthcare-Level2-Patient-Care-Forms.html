@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Care Forms | HomeHealthCloud AI - PACE Program Integration</title>
+    <meta name="description" content="HIPAA-compliant patient care forms with real-time validation, AWS integration, and AI-powered health assessments">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --healthcare-primary: #0066cc;
+            --healthcare-secondary: #00a86b;
+            --healthcare-accent: #ff6b35;
+            --healthcare-warning: #ffa500;
+            --healthcare-critical: #dc3545;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-form: #e8f4fd;
+            --border-color: #dee2e6;
+            --shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-form);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--healthcare-primary);
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.2);
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--bg-secondary);
+        }
+
+        .form-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--healthcare-primary), var(--healthcare-secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--healthcare-primary);
+        }
+
+        .form-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .required {
+            color: var(--healthcare-critical);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+            background: var(--bg-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--healthcare-primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .form-input.valid {
+            border-color: var(--healthcare-secondary);
+            background: rgba(0, 168, 107, 0.05);
+        }
+
+        .form-input.invalid {
+            border-color: var(--healthcare-critical);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .checkbox-item:hover {
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .validation-message {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .validation-message.success {
+            background: rgba(0, 168, 107, 0.1);
+            color: var(--healthcare-secondary);
+            border: 1px solid rgba(0, 168, 107, 0.2);
+            display: block;
+        }
+
+        .validation-message.error {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--healthcare-critical);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            display: block;
+        }
+
+        .validation-message.warning {
+            background: rgba(255, 165, 0, 0.1);
+            color: var(--healthcare-warning);
+            border: 1px solid rgba(255, 165, 0, 0.2);
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--healthcare-primary), var(--healthcare-secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 102, 204, 0.3);
+        }
+
+        .submit-btn:disabled {
+            background: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-insights {
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.1), rgba(0, 168, 107, 0.1));
+            border: 2px solid rgba(0, 102, 204, 0.2);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .ai-insights.show {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .ai-insights h4 {
+            color: var(--healthcare-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-insights h4::before {
+            content: '🤖';
+            margin-right: 0.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--healthcare-primary), var(--healthcare-secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .form-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--healthcare-primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .forms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 Patient Care Forms</h1>
+            <p>HIPAA-compliant patient assessment and care coordination forms with real-time validation, AWS integration, and AI-powered health insights for PACE programs and remote monitoring.</p>
+        </div>
+
+        <!-- Forms Grid -->
+        <div class="forms-grid">
+            <!-- Patient Assessment Form -->
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="form-icon">👤</div>
+                    <div>
+                        <div class="form-title">Patient Assessment</div>
+                        <div class="form-subtitle">Comprehensive health evaluation and risk assessment</div>
+                    </div>
+                </div>
+
+                <form id="patientAssessmentForm">
+                    <div class="form-group">
+                        <label class="form-label" for="patientId">Patient ID <span class="required">*</span></label>
+                        <input type="text" id="patientId" class="form-input" placeholder="Enter patient ID" required>
+                        <div class="validation-message" id="patientIdValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="patientName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="patientName" class="form-input" placeholder="Enter patient full name" required>
+                        <div class="validation-message" id="patientNameValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+                        <input type="date" id="dateOfBirth" class="form-input" required>
+                        <div class="validation-message" id="dobValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="primaryDiagnosis">Primary Diagnosis <span class="required">*</span></label>
+                        <select id="primaryDiagnosis" class="form-select" required>
+                            <option value="">Select primary diagnosis</option>
+                            <option value="diabetes">Diabetes Mellitus</option>
+                            <option value="hypertension">Hypertension</option>
+                            <option value="heart-disease">Heart Disease</option>
+                            <option value="copd">COPD</option>
+                            <option value="dementia">Dementia/Alzheimer's</option>
+                            <option value="arthritis">Arthritis</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="validation-message" id="diagnosisValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Current Symptoms</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom1" value="fatigue">
+                                <label for="symptom1">Fatigue</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom2" value="shortness-breath">
+                                <label for="symptom2">Shortness of Breath</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom3" value="chest-pain">
+                                <label for="symptom3">Chest Pain</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom4" value="dizziness">
+                                <label for="symptom4">Dizziness</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom5" value="confusion">
+                                <label for="symptom5">Confusion</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="symptom6" value="falls">
+                                <label for="symptom6">Recent Falls</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="riskLevel">Fall Risk Assessment</label>
+                        <select id="riskLevel" class="form-select">
+                            <option value="">AI will calculate risk level</option>
+                            <option value="low">Low Risk</option>
+                            <option value="moderate">Moderate Risk</option>
+                            <option value="high">High Risk</option>
+                            <option value="critical">Critical Risk</option>
+                        </select>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="assessmentProgress"></div>
+                    </div>
+
+                    <div class="ai-insights" id="assessmentInsights">
+                        <h4>AI Health Insights</h4>
+                        <p id="insightsText">AI analysis will appear here based on your inputs...</p>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="assessmentSubmit">Submit Assessment</button>
+                </form>
+            </div>
+
+            <!-- Care Plan Form -->
+            <div class="form-container">
+                <div class="form-header">
+                    <div class="form-icon">📋</div>
+                    <div>
+                        <div class="form-title">Care Plan Update</div>
+                        <div class="form-subtitle">Treatment plan and medication management</div>
+                    </div>
+                </div>
+
+                <form id="carePlanForm">
+                    <div class="form-group">
+                        <label class="form-label" for="carePatientId">Patient ID <span class="required">*</span></label>
+                        <input type="text" id="carePatientId" class="form-input" placeholder="Enter patient ID" required>
+                        <div class="validation-message" id="carePatientIdValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="careProvider">Care Provider <span class="required">*</span></label>
+                        <input type="text" id="careProvider" class="form-input" placeholder="Enter provider name" required>
+                        <div class="validation-message" id="careProviderValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="visitType">Visit Type <span class="required">*</span></label>
+                        <select id="visitType" class="form-select" required>
+                            <option value="">Select visit type</option>
+                            <option value="routine">Routine Check-up</option>
+                            <option value="urgent">Urgent Care</option>
+                            <option value="follow-up">Follow-up</option>
+                            <option value="medication">Medication Review</option>
+                            <option value="therapy">Physical Therapy</option>
+                            <option value="social">Social Services</option>
+                        </select>
+                        <div class="validation-message" id="visitTypeValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="vitalSigns">Vital Signs</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <input type="text" id="bloodPressure" class="form-input" placeholder="Blood Pressure (120/80)">
+                            <input type="text" id="heartRate" class="form-input" placeholder="Heart Rate (BPM)">
+                            <input type="text" id="temperature" class="form-input" placeholder="Temperature (°F)">
+                            <input type="text" id="oxygenSat" class="form-input" placeholder="Oxygen Sat (%)">
+                        </div>
+                        <div class="validation-message" id="vitalsValidation"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Care Interventions</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention1" value="medication-review">
+                                <label for="intervention1">Medication Review</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention2" value="fall-prevention">
+                                <label for="intervention2">Fall Prevention</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention3" value="nutrition">
+                                <label for="intervention3">Nutrition Counseling</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention4" value="exercise">
+                                <label for="intervention4">Exercise Program</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention5" value="social-support">
+                                <label for="intervention5">Social Support</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="intervention6" value="home-safety">
+                                <label for="intervention6">Home Safety Assessment</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="nextVisit">Next Visit Date</label>
+                        <input type="date" id="nextVisit" class="form-input">
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="carePlanProgress"></div>
+                    </div>
+
+                    <div class="ai-insights" id="carePlanInsights">
+                        <h4>Care Recommendations</h4>
+                        <p id="careInsightsText">AI-powered care recommendations will appear here...</p>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="carePlanSubmit">Update Care Plan</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Form Statistics -->
+        <div class="form-stats">
+            <div class="stat-item">
+                <div class="stat-value" id="formsCompleted">0</div>
+                <div class="stat-label">Forms Completed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="validationsPassed">0</div>
+                <div class="stat-label">Validations Passed</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="aiInsightsGenerated">0</div>
+                <div class="stat-label">AI Insights Generated</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="dataIntegrity">100%</div>
+                <div class="stat-label">Data Integrity</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and AI insights system
+        class HealthcareFormValidator {
+            constructor() {
+                this.stats = {
+                    formsCompleted: 0,
+                    validationsPassed: 0,
+                    aiInsightsGenerated: 0,
+                    dataIntegrity: 100
+                };
+                this.initializeValidation();
+            }
+
+            initializeValidation() {
+                // Patient Assessment Form
+                this.setupPatientAssessmentValidation();
+                
+                // Care Plan Form
+                this.setupCarePlanValidation();
+                
+                // Update stats display
+                this.updateStats();
+            }
+
+            setupPatientAssessmentValidation() {
+                const form = document.getElementById('patientAssessmentForm');
+                const inputs = form.querySelectorAll('input, select');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.validatePatientAssessment());
+                    input.addEventListener('change', () => this.validatePatientAssessment());
+                });
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitPatientAssessment();
+                });
+            }
+
+            setupCarePlanValidation() {
+                const form = document.getElementById('carePlanForm');
+                const inputs = form.querySelectorAll('input, select');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('input', () => this.validateCarePlan());
+                    input.addEventListener('change', () => this.validateCarePlan());
+                });
+
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.submitCarePlan();
+                });
+            }
+
+            validatePatientAssessment() {
+                const patientId = document.getElementById('patientId');
+                const patientName = document.getElementById('patientName');
+                const dateOfBirth = document.getElementById('dateOfBirth');
+                const primaryDiagnosis = document.getElementById('primaryDiagnosis');
+                
+                let validFields = 0;
+                let totalFields = 4;
+
+                // Validate Patient ID
+                if (this.validatePatientId(patientId.value)) {
+                    this.showValidation('patientIdValidation', 'Valid patient ID format', 'success');
+                    patientId.classList.add('valid');
+                    patientId.classList.remove('invalid');
+                    validFields++;
+                } else if (patientId.value) {
+                    this.showValidation('patientIdValidation', 'Patient ID should be in format: PAT-XXXX', 'error');
+                    patientId.classList.add('invalid');
+                    patientId.classList.remove('valid');
+                }
+
+                // Validate Patient Name
+                if (patientName.value.length >= 2) {
+                    this.showValidation('patientNameValidation', 'Valid patient name', 'success');
+                    patientName.classList.add('valid');
+                    patientName.classList.remove('invalid');
+                    validFields++;
+                } else if (patientName.value) {
+                    this.showValidation('patientNameValidation', 'Name must be at least 2 characters', 'error');
+                    patientName.classList.add('invalid');
+                    patientName.classList.remove('valid');
+                }
+
+                // Validate Date of Birth
+                if (this.validateAge(dateOfBirth.value)) {
+                    const age = this.calculateAge(dateOfBirth.value);
+                    this.showValidation('dobValidation', `Valid date of birth (Age: ${age})`, 'success');
+                    dateOfBirth.classList.add('valid');
+                    dateOfBirth.classList.remove('invalid');
+                    validFields++;
+                } else if (dateOfBirth.value) {
+                    this.showValidation('dobValidation', 'Patient must be 18+ years old', 'error');
+                    dateOfBirth.classList.add('invalid');
+                    dateOfBirth.classList.remove('valid');
+                }
+
+                // Validate Primary Diagnosis
+                if (primaryDiagnosis.value) {
+                    this.showValidation('diagnosisValidation', 'Primary diagnosis selected', 'success');
+                    validFields++;
+                }
+
+                // Update progress
+                const progress = (validFields / totalFields) * 100;
+                document.getElementById('assessmentProgress').style.width = `${progress}%`;
+
+                // Generate AI insights if form is mostly complete
+                if (validFields >= 3) {
+                    this.generateAssessmentInsights();
+                }
+
+                // Update validation count
+                this.stats.validationsPassed = validFields;
+                this.updateStats();
+            }
+
+            validateCarePlan() {
+                const carePatientId = document.getElementById('carePatientId');
+                const careProvider = document.getElementById('careProvider');
+                const visitType = document.getElementById('visitType');
+                const bloodPressure = document.getElementById('bloodPressure');
+                const heartRate = document.getElementById('heartRate');
+                
+                let validFields = 0;
+                let totalFields = 5;
+
+                // Validate Care Patient ID
+                if (this.validatePatientId(carePatientId.value)) {
+                    this.showValidation('carePatientIdValidation', 'Valid patient ID', 'success');
+                    carePatientId.classList.add('valid');
+                    validFields++;
+                }
+
+                // Validate Care Provider
+                if (careProvider.value.length >= 2) {
+                    this.showValidation('careProviderValidation', 'Valid provider name', 'success');
+                    careProvider.classList.add('valid');
+                    validFields++;
+                }
+
+                // Validate Visit Type
+                if (visitType.value) {
+                    this.showValidation('visitTypeValidation', 'Visit type selected', 'success');
+                    validFields++;
+                }
+
+                // Validate Vital Signs
+                if (this.validateVitalSigns(bloodPressure.value, heartRate.value)) {
+                    this.showValidation('vitalsValidation', 'Vital signs within normal ranges', 'success');
+                    validFields += 2;
+                } else if (bloodPressure.value || heartRate.value) {
+                    this.showValidation('vitalsValidation', 'Check vital signs format and ranges', 'warning');
+                }
+
+                // Update progress
+                const progress = (validFields / totalFields) * 100;
+                document.getElementById('carePlanProgress').style.width = `${progress}%`;
+
+                // Generate care recommendations
+                if (validFields >= 3) {
+                    this.generateCareRecommendations();
+                }
+            }
+
+            validatePatientId(id) {
+                const pattern = /^PAT-\d{4}$/;
+                return pattern.test(id);
+            }
+
+            validateAge(dateOfBirth) {
+                const age = this.calculateAge(dateOfBirth);
+                return age >= 18 && age <= 120;
+            }
+
+            calculateAge(dateOfBirth) {
+                const today = new Date();
+                const birthDate = new Date(dateOfBirth);
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const monthDiff = today.getMonth() - birthDate.getMonth();
+                
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                return age;
+            }
+
+            validateVitalSigns(bp, hr) {
+                // Basic vital signs validation
+                const bpPattern = /^\d{2,3}\/\d{2,3}$/;
+                const hrPattern = /^\d{2,3}$/;
+                
+                if (bp && !bpPattern.test(bp)) return false;
+                if (hr && !hrPattern.test(hr)) return false;
+                
+                if (hr) {
+                    const heartRate = parseInt(hr);
+                    if (heartRate < 40 || heartRate > 150) return false;
+                }
+                
+                return true;
+            }
+
+            generateAssessmentInsights() {
+                const insights = document.getElementById('assessmentInsights');
+                const insightsText = document.getElementById('insightsText');
+                
+                const diagnosis = document.getElementById('primaryDiagnosis').value;
+                const symptoms = this.getSelectedSymptoms();
+                
+                let aiInsight = this.getAIInsight(diagnosis, symptoms);
+                
+                insightsText.textContent = aiInsight;
+                insights.classList.add('show');
+                
+                this.stats.aiInsightsGenerated++;
+                this.updateStats();
+            }
+
+            generateCareRecommendations() {
+                const insights = document.getElementById('carePlanInsights');
+                const insightsText = document.getElementById('careInsightsText');
+                
+                const visitType = document.getElementById('visitType').value;
+                const interventions = this.getSelectedInterventions();
+                
+                let recommendation = this.getCareRecommendation(visitType, interventions);
+                
+                insightsText.textContent = recommendation;
+                insights.classList.add('show');
+            }
+
+            getSelectedSymptoms() {
+                const symptoms = [];
+                for (let i = 1; i <= 6; i++) {
+                    const checkbox = document.getElementById(`symptom${i}`);
+                    if (checkbox && checkbox.checked) {
+                        symptoms.push(checkbox.value);
+                    }
+                }
+                return symptoms;
+            }
+
+            getSelectedInterventions() {
+                const interventions = [];
+                for (let i = 1; i <= 6; i++) {
+                    const checkbox = document.getElementById(`intervention${i}`);
+                    if (checkbox && checkbox.checked) {
+                        interventions.push(checkbox.value);
+                    }
+                }
+                return interventions;
+            }
+
+            getAIInsight(diagnosis, symptoms) {
+                const insights = {
+                    'diabetes': 'Monitor blood glucose levels closely. Consider continuous glucose monitoring integration with AWS IoT.',
+                    'hypertension': 'Blood pressure monitoring recommended. AWS HealthLake can track trends and predict complications.',
+                    'heart-disease': 'Cardiac monitoring essential. Amazon SageMaker can predict heart failure risk based on symptoms.',
+                    'copd': 'Respiratory monitoring critical. AI can detect exacerbation patterns from symptom data.',
+                    'dementia': 'Cognitive assessment and fall prevention priority. AI can track behavioral patterns.',
+                    'arthritis': 'Mobility assessment important. Physical therapy and pain management focus.'
+                };
+                
+                let baseInsight = insights[diagnosis] || 'Comprehensive assessment recommended based on patient profile.';
+                
+                if (symptoms.includes('falls')) {
+                    baseInsight += ' HIGH FALL RISK DETECTED - Immediate safety assessment required.';
+                }
+                
+                if (symptoms.includes('confusion')) {
+                    baseInsight += ' Cognitive evaluation recommended.';
+                }
+                
+                return baseInsight;
+            }
+
+            getCareRecommendation(visitType, interventions) {
+                const recommendations = {
+                    'routine': 'Standard care protocol. Monitor vital signs and medication adherence.',
+                    'urgent': 'Immediate assessment required. Consider telehealth consultation if appropriate.',
+                    'follow-up': 'Review previous care plan effectiveness. Adjust interventions as needed.',
+                    'medication': 'Medication reconciliation and adherence review. Check for drug interactions.',
+                    'therapy': 'Physical therapy assessment. Monitor mobility and pain levels.',
+                    'social': 'Social determinants evaluation. Connect with community resources.'
+                };
+                
+                let baseRec = recommendations[visitType] || 'Comprehensive care assessment recommended.';
+                
+                if (interventions.includes('fall-prevention')) {
+                    baseRec += ' Implement fall prevention strategies immediately.';
+                }
+                
+                return baseRec;
+            }
+
+            showValidation(elementId, message, type) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.className = `validation-message ${type}`;
+                }
+            }
+
+            submitPatientAssessment() {
+                this.stats.formsCompleted++;
+                this.updateStats();
+                
+                // Simulate AWS integration
+                console.log('🏥 Patient Assessment submitted to AWS HealthLake');
+                console.log('📊 Data processed by Amazon SageMaker for risk prediction');
+                console.log('🔔 Alerts sent via Amazon SNS if high-risk detected');
+                
+                alert('Patient Assessment submitted successfully!\n\nData has been securely stored in AWS HealthLake and processed by AI for risk assessment.');
+            }
+
+            submitCarePlan() {
+                this.stats.formsCompleted++;
+                this.updateStats();
+                
+                // Simulate AWS integration
+                console.log('📋 Care Plan updated in AWS HealthLake');
+                console.log('🤖 AI recommendations generated via Amazon Bedrock');
+                console.log('📱 Care team notified via Amazon Connect');
+                
+                alert('Care Plan updated successfully!\n\nAI-powered recommendations have been generated and the care team has been notified.');
+            }
+
+            updateStats() {
+                document.getElementById('formsCompleted').textContent = this.stats.formsCompleted;
+                document.getElementById('validationsPassed').textContent = this.stats.validationsPassed;
+                document.getElementById('aiInsightsGenerated').textContent = this.stats.aiInsightsGenerated;
+                document.getElementById('dataIntegrity').textContent = this.stats.dataIntegrity + '%';
+            }
+        }
+
+        // Initialize the healthcare form validator
+        document.addEventListener('DOMContentLoaded', function() {
+            const validator = new HealthcareFormValidator();
+            
+            // Simulate real-time AWS service monitoring
+            setInterval(() => {
+                console.log('🔍 AWS Services Health Check:');
+                console.log('✅ AWS HealthLake: Operational');
+                console.log('✅ Amazon SageMaker: Processing');
+                console.log('✅ Amazon Bedrock: Generating insights');
+                console.log('✅ AWS IoT Core: Monitoring devices');
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

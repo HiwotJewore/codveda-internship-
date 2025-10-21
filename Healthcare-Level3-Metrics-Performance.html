@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Metrics & Performance Dashboard | HomeHealthCloud AI</title>
+    <meta name="description" content="Real-time healthcare metrics, performance monitoring, and AWS cloud optimization for PACE programs and remote patient monitoring">
+    
+    <!-- Performance Optimization -->
+    <link rel="preload" href="data:font/woff2;base64,..." as="font" type="font/woff2" crossorigin>
+    <link rel="dns-prefetch" href="//api.aws.com">
+    <link rel="dns-prefetch" href="//healthlake.amazonaws.com">
+    
+    <style>
+        /* Critical CSS for healthcare dashboard */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --healthcare-primary: #0066cc;
+            --healthcare-secondary: #00a86b;
+            --healthcare-accent: #ff6b35;
+            --healthcare-warning: #ffa500;
+            --healthcare-critical: #dc3545;
+            --healthcare-success: #28a745;
+            --text-primary: #2c3e50;
+            --text-secondary: #6c757d;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-dashboard: #e8f4fd;
+            --shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-dashboard);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--healthcare-primary), var(--healthcare-secondary));
+            border-radius: 15px;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.2s both;
+        }
+
+        /* Performance Metrics Grid */
+        .metrics-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--healthcare-primary), var(--healthcare-secondary));
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 102, 204, 0.2);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--healthcare-primary);
+            margin-bottom: 0.5rem;
+            counter-reset: metric-counter;
+        }
+
+        .metric-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: var(--healthcare-success);
+        }
+
+        .metric-change.negative {
+            color: var(--healthcare-critical);
+        }
+
+        .metric-change.neutral {
+            color: var(--text-secondary);
+        }
+
+        /* Real-time Counters */
+        .counters-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .counters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+
+        .counter-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            transition: var(--transition);
+        }
+
+        .counter-item:hover {
+            background: rgba(0, 102, 204, 0.05);
+            transform: scale(1.02);
+        }
+
+        .counter-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--healthcare-primary);
+            margin-bottom: 0.5rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .counter-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Performance Charts */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--healthcare-primary);
+            margin-bottom: 1rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.1), rgba(0, 168, 107, 0.1));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* AWS Services Status */
+        .aws-status {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .service-status {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .service-status:hover {
+            background: rgba(0, 102, 204, 0.05);
+        }
+
+        .service-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .service-indicator.operational {
+            background: var(--healthcare-success);
+        }
+
+        .service-indicator.warning {
+            background: var(--healthcare-warning);
+        }
+
+        .service-indicator.critical {
+            background: var(--healthcare-critical);
+        }
+
+        .service-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .service-metric {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Live Activity Feed */
+        .activity-feed {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--bg-secondary);
+            transition: var(--transition);
+        }
+
+        .activity-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Performance Indicators */
+        .performance-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .performance-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--healthcare-primary), var(--healthcare-secondary));
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .count-animation {
+            animation: countUp 0.5s ease;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .counters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .counters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 Healthcare Metrics & Performance Dashboard</h1>
+            <p>Real-time monitoring of PACE programs, patient outcomes, and AWS cloud performance for optimal healthcare delivery</p>
+        </div>
+
+        <!-- Key Performance Metrics -->
+        <div class="metrics-dashboard">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Patient Satisfaction</div>
+                    <div class="metric-icon" style="background: var(--healthcare-success);">😊</div>
+                </div>
+                <div class="metric-value" id="patientSatisfaction">94.7%</div>
+                <div class="metric-change positive">
+                    ↗ +2.3% from last month
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 94.7%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Care Quality Score</div>
+                    <div class="metric-icon" style="background: var(--healthcare-primary);">⭐</div>
+                </div>
+                <div class="metric-value" id="careQuality">4.8/5.0</div>
+                <div class="metric-change positive">
+                    ↗ +0.2 improvement
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 96%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Response Time</div>
+                    <div class="metric-icon" style="background: var(--healthcare-accent);">⚡</div>
+                </div>
+                <div class="metric-value" id="responseTime">2.3min</div>
+                <div class="metric-change positive">
+                    ↗ 15% faster response
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 85%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">System Uptime</div>
+                    <div class="metric-icon" style="background: var(--healthcare-success);">🔧</div>
+                </div>
+                <div class="metric-value" id="systemUptime">99.9%</div>
+                <div class="metric-change positive">
+                    ↗ 99.9% availability
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 99.9%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">Cost Efficiency</div>
+                    <div class="metric-icon" style="background: var(--healthcare-secondary);">💰</div>
+                </div>
+                <div class="metric-value" id="costEfficiency">$127/pt</div>
+                <div class="metric-change positive">
+                    ↗ 8% cost reduction
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 78%;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title">AI Accuracy</div>
+                    <div class="metric-icon" style="background: var(--healthcare-primary);">🤖</div>
+                </div>
+                <div class="metric-value" id="aiAccuracy">96.2%</div>
+                <div class="metric-change positive">
+                    ↗ +1.8% improvement
+                </div>
+                <div class="performance-bar">
+                    <div class="performance-fill" style="width: 96.2%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Counters -->
+        <div class="counters-section">
+            <h2 class="chart-title">📊 Live Healthcare Metrics</h2>
+            <div class="counters-grid">
+                <div class="counter-item">
+                    <div class="counter-number" id="activePatients">1,247</div>
+                    <div class="counter-label">Active Patients</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-number" id="dailyVisits">89</div>
+                    <div class="counter-label">Daily Visits</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-number" id="aiPredictions">156</div>
+                    <div class="counter-label">AI Predictions Today</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-number" id="medicationAlerts">23</div>
+                    <div class="counter-label">Medication Alerts</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-number" id="fallPrevention">12</div>
+                    <div class="counter-label">Fall Prevention Alerts</div>
+                </div>
+                <div class="counter-item">
+                    <div class="counter-number" id="telehealth">34</div>
+                    <div class="counter-label">Telehealth Sessions</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Charts -->
+        <div class="charts-section">
+            <div class="chart-container">
+                <h3 class="chart-title">📈 Patient Outcome Trends</h3>
+                <div class="chart-placeholder">
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                        <div>Real-time patient outcome analytics</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Powered by Amazon SageMaker & AWS HealthLake</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3 class="chart-title">🎯 Care Quality Metrics</h3>
+                <div class="chart-placeholder">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem;">🏆</div>
+                        <div>Quality indicators dashboard</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">AI-powered quality assessment</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AWS Services Status -->
+        <div class="aws-status">
+            <h3 class="chart-title">☁️ AWS Healthcare Services Status</h3>
+            <div class="services-grid">
+                <div class="service-status">
+                    <div class="service-indicator operational"></div>
+                    <div class="service-name">AWS HealthLake</div>
+                    <div class="service-metric">99.9% uptime</div>
+                </div>
+                <div class="service-status">
+                    <div class="service-indicator operational"></div>
+                    <div class="service-name">Amazon Bedrock</div>
+                    <div class="service-metric">156 insights/day</div>
+                </div>
+                <div class="service-status">
+                    <div class="service-indicator operational"></div>
+                    <div class="service-name">Amazon SageMaker</div>
+                    <div class="service-metric">96.2% accuracy</div>
+                </div>
+                <div class="service-status">
+                    <div class="service-indicator warning"></div>
+                    <div class="service-name">AWS IoT Core</div>
+                    <div class="service-metric">High load</div>
+                </div>
+                <div class="service-status">
+                    <div class="service-indicator operational"></div>
+                    <div class="service-name">Amazon Connect</div>
+                    <div class="service-metric">2.3min avg response</div>
+                </div>
+                <div class="service-status">
+                    <div class="service-indicator operational"></div>
+                    <div class="service-name">AWS Lambda</div>
+                    <div class="service-metric">1.2ms latency</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Activity Feed -->
+        <div class="activity-feed">
+            <h3 class="chart-title">🔔 Live Healthcare Activity</h3>
+            <div id="activityFeed">
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--healthcare-success);">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Patient assessment completed - Maria Rodriguez</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--healthcare-warning);">⚠️</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Fall risk alert - James Wilson (High Risk)</div>
+                        <div class="activity-time">5 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--healthcare-primary);">🤖</div>
+                    <div class="activity-content">
+                        <div class="activity-title">AI prediction: Medication adherence improvement needed</div>
+                        <div class="activity-time">8 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--healthcare-secondary);">📞</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Telehealth session started - Eleanor Chen</div>
+                        <div class="activity-time">12 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon" style="background: var(--healthcare-accent);">💊</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Medication reminder sent - Robert Johnson</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Healthcare Metrics Performance Dashboard
+        class HealthcareMetricsDashboard {
+            constructor() {
+                this.counters = {
+                    activePatients: 1247,
+                    dailyVisits: 89,
+                    aiPredictions: 156,
+                    medicationAlerts: 23,
+                    fallPrevention: 12,
+                    telehealth: 34
+                };
+                
+                this.metrics = {
+                    patientSatisfaction: 94.7,
+                    careQuality: 4.8,
+                    responseTime: 2.3,
+                    systemUptime: 99.9,
+                    costEfficiency: 127,
+                    aiAccuracy: 96.2
+                };
+                
+                this.activities = [
+                    { icon: '✅', bg: 'var(--healthcare-success)', title: 'Patient assessment completed', patient: 'Maria Rodriguez', time: '2 minutes ago' },
+                    { icon: '⚠️', bg: 'var(--healthcare-warning)', title: 'Fall risk alert', patient: 'James Wilson (High Risk)', time: '5 minutes ago' },
+                    { icon: '🤖', bg: 'var(--healthcare-primary)', title: 'AI prediction: Medication adherence improvement needed', patient: '', time: '8 minutes ago' },
+                    { icon: '📞', bg: 'var(--healthcare-secondary)', title: 'Telehealth session started', patient: 'Eleanor Chen', time: '12 minutes ago' },
+                    { icon: '💊', bg: 'var(--healthcare-accent)', title: 'Medication reminder sent', patient: 'Robert Johnson', time: '15 minutes ago' }
+                ];
+                
+                this.init();
+            }
+
+            init() {
+                this.startRealTimeUpdates();
+                this.animateCounters();
+                this.updateActivityFeed();
+                this.monitorPerformance();
+                this.simulateAWSServices();
+            }
+
+            startRealTimeUpdates() {
+                // Update counters every 5 seconds
+                setInterval(() => {
+                    this.updateCounters();
+                }, 5000);
+
+                // Update metrics every 30 seconds
+                setInterval(() => {
+                    this.updateMetrics();
+                }, 30000);
+
+                // Add new activities every 2 minutes
+                setInterval(() => {
+                    this.addNewActivity();
+                }, 120000);
+            }
+
+            updateCounters() {
+                // Simulate real-time changes
+                this.counters.activePatients += Math.floor(Math.random() * 5) - 2;
+                this.counters.dailyVisits += Math.floor(Math.random() * 3);
+                this.counters.aiPredictions += Math.floor(Math.random() * 4);
+                this.counters.medicationAlerts += Math.floor(Math.random() * 2);
+                this.counters.fallPrevention += Math.floor(Math.random() * 2);
+                this.counters.telehealth += Math.floor(Math.random() * 3);
+
+                // Update DOM with animation
+                Object.keys(this.counters).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.classList.add('count-animation');
+                        element.textContent = this.formatNumber(this.counters[key]);
+                        
+                        setTimeout(() => {
+                            element.classList.remove('count-animation');
+                        }, 500);
+                    }
+                });
+
+                console.log('📊 Healthcare Metrics Updated:', this.counters);
+            }
+
+            updateMetrics() {
+                // Simulate metric fluctuations
+                this.metrics.patientSatisfaction += (Math.random() - 0.5) * 0.5;
+                this.metrics.careQuality += (Math.random() - 0.5) * 0.1;
+                this.metrics.responseTime += (Math.random() - 0.5) * 0.2;
+                this.metrics.systemUptime = Math.max(99.5, this.metrics.systemUptime + (Math.random() - 0.5) * 0.1);
+                this.metrics.costEfficiency += (Math.random() - 0.5) * 5;
+                this.metrics.aiAccuracy += (Math.random() - 0.5) * 0.3;
+
+                // Update DOM
+                document.getElementById('patientSatisfaction').textContent = this.metrics.patientSatisfaction.toFixed(1) + '%';
+                document.getElementById('careQuality').textContent = this.metrics.careQuality.toFixed(1) + '/5.0';
+                document.getElementById('responseTime').textContent = this.metrics.responseTime.toFixed(1) + 'min';
+                document.getElementById('systemUptime').textContent = this.metrics.systemUptime.toFixed(1) + '%';
+                document.getElementById('costEfficiency').textContent = '$' + Math.round(this.metrics.costEfficiency) + '/pt';
+                document.getElementById('aiAccuracy').textContent = this.metrics.aiAccuracy.toFixed(1) + '%';
+
+                console.log('📈 Performance Metrics Updated:', this.metrics);
+            }
+
+            addNewActivity() {
+                const newActivities = [
+                    { icon: '🏥', bg: 'var(--healthcare-primary)', title: 'New patient enrolled in PACE program', patient: 'Sarah Johnson', time: 'Just now' },
+                    { icon: '🔔', bg: 'var(--healthcare-warning)', title: 'Vital signs anomaly detected', patient: 'Michael Brown', time: 'Just now' },
+                    { icon: '💡', bg: 'var(--healthcare-secondary)', title: 'AI insight: Care plan optimization suggested', patient: '', time: 'Just now' },
+                    { icon: '📱', bg: 'var(--healthcare-accent)', title: 'IoT device connected', patient: 'Device ID: IOT-4567', time: 'Just now' },
+                    { icon: '🎯', bg: 'var(--healthcare-success)', title: 'Quality milestone achieved', patient: '95% satisfaction rate', time: 'Just now' }
+                ];
+
+                const randomActivity = newActivities[Math.floor(Math.random() * newActivities.length)];
+                this.activities.unshift(randomActivity);
+                
+                // Keep only last 10 activities
+                if (this.activities.length > 10) {
+                    this.activities = this.activities.slice(0, 10);
+                }
+                
+                this.updateActivityFeed();
+            }
+
+            updateActivityFeed() {
+                const feedElement = document.getElementById('activityFeed');
+                if (feedElement) {
+                    feedElement.innerHTML = this.activities.map(activity => `
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: ${activity.bg};">${activity.icon}</div>
+                            <div class="activity-content">
+                                <div class="activity-title">${activity.title}${activity.patient ? ' - ' + activity.patient : ''}</div>
+                                <div class="activity-time">${activity.time}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            animateCounters() {
+                // Animate counters on page load
+                const counterElements = document.querySelectorAll('.counter-number');
+                counterElements.forEach((element, index) => {
+                    element.style.animationDelay = `${index * 0.1}s`;
+                    element.classList.add('count-animation');
+                });
+            }
+
+            monitorPerformance() {
+                // Monitor Web Vitals and performance
+                if ('performance' in window) {
+                    const navigation = performance.getEntriesByType('navigation')[0];
+                    const loadTime = navigation.loadEventEnd - navigation.loadEventStart;
+                    
+                    console.log('🚀 Dashboard Performance Metrics:');
+                    console.log(`⚡ Page Load Time: ${loadTime.toFixed(2)}ms`);
+                    console.log(`📊 DOM Content Loaded: ${navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart}ms`);
+                    
+                    // Simulate performance optimization
+                    if (loadTime > 1000) {
+                        console.log('⚠️ Performance optimization recommended');
+                    } else {
+                        console.log('✅ Optimal performance achieved');
+                    }
+                }
+            }
+
+            simulateAWSServices() {
+                // Simulate AWS service monitoring
+                setInterval(() => {
+                    console.log('☁️ AWS Healthcare Services Health Check:');
+                    console.log('✅ AWS HealthLake: Processing ' + Math.floor(Math.random() * 100 + 50) + ' records/min');
+                    console.log('✅ Amazon Bedrock: Generated ' + Math.floor(Math.random() * 20 + 10) + ' insights');
+                    console.log('✅ Amazon SageMaker: Model accuracy ' + (95 + Math.random() * 3).toFixed(1) + '%');
+                    console.log('⚠️ AWS IoT Core: ' + Math.floor(Math.random() * 500 + 200) + ' devices connected');
+                    console.log('✅ Amazon Connect: Avg response time ' + (2 + Math.random()).toFixed(1) + 'min');
+                    console.log('✅ AWS Lambda: ' + Math.floor(Math.random() * 1000 + 500) + ' functions executed');
+                }, 45000);
+            }
+
+            formatNumber(num) {
+                if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return num.toString();
+            }
+        }
+
+        // Initialize dashboard when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboard = new HealthcareMetricsDashboard();
+            
+            // Add loading animations to metric cards
+            const metricCards = document.querySelectorAll('.metric-card');
+            metricCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.style.animation = 'fadeInUp 0.6s ease forwards';
+            });
+            
+            // Performance monitoring
+            console.log('🏥 HomeHealthCloud AI Dashboard Initialized');
+            console.log('📊 Real-time metrics monitoring active');
+            console.log('☁️ AWS services integration operational');
+            console.log('🤖 AI-powered insights generation enabled');
+        });
+
+        // Service Worker for performance optimization (if supported)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(registration) {
+                console.log('✅ Service Worker registered for performance optimization');
+            }).catch(function(error) {
+                console.log('ℹ️ Service Worker registration not available');
+            });
+        }
+    </script>
+</body>
+</html>
